@@ -1,0 +1,46 @@
+{
+  "name": "raysurfer-code-caching-mcp",
+  "version": "1.0.0",
+  "description": "MCP server that exposes Raysurfer code caching as native Claude Code tools",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "raysurfer-code-caching-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "bun run src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "raysurfer",
+    "code-caching",
+    "ai-tools"
+  ],
+  "author": "Raymond Xu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rayxc-org/raysurfer"
+  },
+  "homepage": "https://raysurfer.com",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
