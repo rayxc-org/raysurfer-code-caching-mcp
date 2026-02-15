@@ -30,7 +30,7 @@
     "type": "git",
     "url": "git+https://github.com/rayxc-org/raysurfer.git"
   },
-  "homepage": "https://raysurfer.com",
+  "homepage": "https://www.raysurfer.com",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
     "zod": "^3.24.2"

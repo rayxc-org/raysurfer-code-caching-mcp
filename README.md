@@ -1,6 +1,6 @@
 # Raysurfer Code Caching MCP Server
 
-[Website](https://raysurfer.com) · [Docs](https://docs.raysurfer.com) · [Dashboard](https://raysurfer.com/dashboard/api-keys)
+[Website](https://www.raysurfer.com) · [Docs](https://docs.raysurfer.com) · [Dashboard](https://www.raysurfer.com/dashboard/api-keys)
 
 MCP server that caches and reuses code from prior AI agent executions. Search before coding, upload after success.
 
@@ -8,7 +8,7 @@ No install required — runs via `npx`.
 
 ## Setup
 
-Get your API key from the [dashboard](https://raysurfer.com/dashboard/api-keys).
+Get your API key from the [dashboard](https://www.raysurfer.com/dashboard/api-keys).
 
 ### Claude Desktop
 

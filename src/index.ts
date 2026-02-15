@@ -26,7 +26,7 @@ async function apiRequest<T>(
   if (!apiKey) {
     throw new Error(
       "RAYSURFER_API_KEY environment variable is not set. " +
-        "Get your key at https://raysurfer.com"
+        "Get your key at https://www.raysurfer.com"
     );
   }
 
