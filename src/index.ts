@@ -281,9 +281,13 @@ server.registerTool(
         .boolean()
         .default(true)
         .describe("Whether the execution succeeded (default true)"),
+      public: z
+        .boolean()
+        .default(false)
+        .describe("Upload as a public community snippet (default false, private to your account)"),
     },
   },
-  async ({ task, file, succeeded }) => {
+  async ({ task, file, succeeded, public: isPublic }) => {
     try {
       const data = await apiRequest<UploadApiResponse>(
         "/api/store/execution-result",
@@ -292,15 +296,17 @@ server.registerTool(
           file_written: file,
           succeeded: succeeded ?? true,
           use_raysurfer_ai_voting: true,
+          public: isPublic ?? false,
         }
       );
 
       const stored = data.code_blocks_stored ?? 0;
+      const visibility = (isPublic ?? false) ? "public" : "private";
       return {
         content: [
           {
             type: "text",
-            text: `Upload ${data.success ? "successful" : "failed"}: ${stored} code block${stored !== 1 ? "s" : ""} stored. ${data.message}`,
+            text: `Upload ${data.success ? "successful" : "failed"} (${visibility}): ${stored} code block${stored !== 1 ? "s" : ""} stored. ${data.message}`,
           },
         ],
       };
@@ -461,8 +467,9 @@ server.registerResource(
           "   Example: { task: 'Parse CSV file and generate summary stats' }",
           "",
           "2. raysurfer_upload - Upload code after a successful execution",
-          "   Use AFTER completing a task to share your solution.",
-          "   Example: { task: 'Parse CSV', file: { path: 'parser.py', content: '...' } }",
+          "   Use AFTER completing a task to cache your solution.",
+          "   Set public: true to share with the community, or omit for private (default).",
+          "   Example: { task: 'Parse CSV', file: { path: 'parser.py', content: '...' }, public: true }",
           "",
           "3. raysurfer_vote - Vote on cached code quality",
           "   Use to upvote code that worked or downvote code that did not.",
