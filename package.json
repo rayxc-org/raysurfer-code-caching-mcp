@@ -1,6 +1,6 @@
 {
   "name": "raysurfer-code-caching-mcp",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "MCP server that exposes Raysurfer code caching as native Claude Code tools",
   "type": "module",
   "bin": {

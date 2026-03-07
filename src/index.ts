@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "1.0.2";
+const VERSION = "1.1.0";
 const BASE_URL = "https://api.raysurfer.com";
 
 // ---------------------------------------------------------------------------
@@ -218,25 +218,34 @@ server.registerTool(
         .max(1)
         .default(0.3)
         .describe("Minimum verdict score threshold (0-1, default 0.3)"),
+      content_type: z
+        .enum(["repo", "route", "script"])
+        .optional()
+        .describe("Filter by content type: 'repo' (full codebase), 'route' (backend endpoint), or 'script' (standalone script). Omit to search all types."),
       public_snips: z
         .boolean()
         .default(false)
         .describe("Include community public snippets in results (default false)"),
     },
   },
-  async ({ task, top_k, min_score, public_snips }) => {
+  async ({ task, top_k, min_score, content_type, public_snips }) => {
     try {
       const extraHeaders = public_snips
         ? { "X-Raysurfer-Public-Snips": "true" }
         : undefined;
+      const body: Record<string, unknown> = {
+        task,
+        top_k: top_k ?? 5,
+        min_verdict_score: min_score ?? 0.3,
+        prefer_complete: true,
+        per_function_reputation: true,
+      };
+      if (content_type) {
+        body.content_type = content_type;
+      }
       const data = await apiRequest<SearchApiResponse>(
         "/api/retrieve/search",
-        {
-          task,
-          top_k: top_k ?? 5,
-          min_verdict_score: min_score ?? 0.3,
-          prefer_complete: true,
-        },
+        body,
         extraHeaders
       );
 
@@ -281,23 +290,32 @@ server.registerTool(
         .boolean()
         .default(true)
         .describe("Whether the execution succeeded (default true)"),
+      content_type: z
+        .enum(["repo", "route", "script"])
+        .optional()
+        .describe("Tag this upload: 'repo' (full codebase), 'route' (backend endpoint), or 'script' (standalone script). Improves search filtering."),
       public: z
         .boolean()
         .default(false)
         .describe("Upload as a public community snippet (default false, private to your account)"),
     },
   },
-  async ({ task, file, succeeded, public: isPublic }) => {
+  async ({ task, file, succeeded, content_type, public: isPublic }) => {
     try {
+      const uploadBody: Record<string, unknown> = {
+        task,
+        file_written: file,
+        succeeded: succeeded ?? true,
+        use_raysurfer_ai_voting: true,
+        per_function_reputation: true,
+        public: isPublic ?? false,
+      };
+      if (content_type) {
+        uploadBody.content_type = content_type;
+      }
       const data = await apiRequest<UploadApiResponse>(
         "/api/store/execution-result",
-        {
-          task,
-          file_written: file,
-          succeeded: succeeded ?? true,
-          use_raysurfer_ai_voting: true,
-          public: isPublic ?? false,
-        }
+        uploadBody
       );
 
       const stored = data.code_blocks_stored ?? 0;
@@ -464,12 +482,15 @@ server.registerResource(
           "",
           "1. raysurfer_search - Search for cached code matching a task",
           "   Use BEFORE writing new code to check for existing solutions.",
+          "   Filter by content_type: 'repo' (full codebase), 'route' (backend endpoint), 'script' (standalone).",
           "   Example: { task: 'Parse CSV file and generate summary stats' }",
+          "   Example with filter: { task: 'user auth endpoint', content_type: 'route' }",
           "",
           "2. raysurfer_upload - Upload code after a successful execution",
           "   Use AFTER completing a task to cache your solution.",
+          "   Tag with content_type: 'repo', 'route', or 'script' to improve search filtering.",
           "   Set public: true to share with the community, or omit for private (default).",
-          "   Example: { task: 'Parse CSV', file: { path: 'parser.py', content: '...' }, public: true }",
+          "   Example: { task: 'Parse CSV', file: { path: 'parser.py', content: '...' }, content_type: 'script', public: true }",
           "",
           "3. raysurfer_vote - Vote on cached code quality",
           "   Use to upvote code that worked or downvote code that did not.",
